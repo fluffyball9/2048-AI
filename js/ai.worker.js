@@ -13,7 +13,6 @@ onmessage = async function(e) {
      else {
         cells = e.data.cells;
         let board = getBoard();
-        postMessage({data:board});
         let promises = [];
         for (const i in miniWorkers) {
             miniWorkers[i].postMessage({board, move:Number(i)})
@@ -40,7 +39,6 @@ function getBoard() {
             board[cell.y][cell.x] = Math.log2(cell.value);
         }
     }
-    //console.log(board);
     let cboard = BigInt(0), i = 0;
     for(row of board) {
         for(c of row) {
@@ -48,18 +46,10 @@ function getBoard() {
             i+=1;
         }
     }
-    /*for(i=0; i<4; i++) {
-        for(j=0; j<4; j++) {
-            powerVal = Number((cboard) & BigInt(0xf));
-            console.log((powerVal == 0) ? 0 : 1 << powerVal);
-            cboard >>= BigInt(4);
-        }
-        //printf("\n");
-    }*/
     return cboard;
 }
 
-let miniWorkers = [new Worker("js/ai.miniworker.js"), new Worker("js/ai.miniworker.js"), new Worker("js/ai.miniworker.js"), new Worker("js/ai.miniworker.js")]
+let miniWorkers = [new Worker("ai.miniworker.js"), new Worker("ai.miniworker.js"), new Worker("ai.miniworker.js"), new Worker("ai.miniworker.js")]
 
 function createPromise(worker) {
     return new Promise(function(resolve) {
@@ -69,16 +59,3 @@ function createPromise(worker) {
         }
     })
 }
-
-miniWorkers[0].addEventListener("message", e=>{if(e.data.data!=undefined) {
-    //postMessage(e.data);
-    return;
-}});
-
-/*let run = async()=>{
-    if(runAI) {
-        
-    }
-    setTimeout(run, 0);
-}
-setTimeout(run, 0);*/

@@ -1,15 +1,9 @@
 let worker = new Worker("js/ai.worker.js");
 let runAI = false;
-let won = GM.won;
+window.won = false;
 window.a = "";
 worker.onmessage = function(e) {
-    if(e.data.data != undefined) {
-        console.log(e.data.data);
-        return;
-    }
     GM.move([0, 2, 3, 1][e.data]);
-    console.log(e.data);
-    //stopai();
     if((GM.won&&!won)||GM.over) {
         stopai();
         if(GM.won) {
@@ -41,4 +35,3 @@ function stopai() {
 window.addEventListener("load", ()=>{
     document.getElementById("ai").onclick = startai;
 });
-
