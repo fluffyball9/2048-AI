@@ -1,12 +1,12 @@
-let table = new Map();
+let table = {};
 function getFrom(key) {
-    return table.get(key);
+    return table[key];
 }
 function exists(key) {
-    return table.has(key);
+    return table[key]!=undefined;
 }
 function set(key, val) {
-    table.set(key, val);
+    table[key] = val;
 }
 let imports = { Map: { getFrom, exists, set }, Math:{pow:Math.pow}};
 (async () => {
