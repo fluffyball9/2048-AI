@@ -1,4 +1,4 @@
-let worker = new Worker("/js/ai.worker.js");
+let worker = new Worker("js/ai.worker.js");
 let runAI = false;
 let won = GM.won;
 window.a = "";

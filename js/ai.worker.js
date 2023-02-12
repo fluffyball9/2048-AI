@@ -59,7 +59,7 @@ function getBoard() {
     return cboard;
 }
 
-let miniWorkers = [new Worker("/js/ai.miniworker.js"), new Worker("/js/ai.miniworker.js"), new Worker("/js/ai.miniworker.js"), new Worker("/js/ai.miniworker.js")]
+let miniWorkers = [new Worker("js/ai.miniworker.js"), new Worker("js/ai.miniworker.js"), new Worker("js/ai.miniworker.js"), new Worker("js/ai.miniworker.js")]
 
 function createPromise(worker) {
     return new Promise(function(resolve) {

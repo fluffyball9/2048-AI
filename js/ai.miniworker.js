@@ -15,12 +15,12 @@ function set(key, val) {
 let log = (e)=>{postMessage({data:e})};
 let imports = { Map: { getFrom, exists, set }, console:{log:e=>log(e), logf:e=>log(e.toFixed(6))}, Math:{pow:Math.pow}};
 (async () => {
-    let asm = await WebAssembly.instantiateStreaming(fetch("/js/2048.wasm"), imports);
+    let asm = await WebAssembly.instantiateStreaming(fetch("js/2048.wasm"), imports);
     //console.log(asm);
     asm.instance.exports._start();
     onmessage = async function (e) {
         if(e.data=="reset") {
-            asm = await WebAssembly.instantiateStreaming(fetch("/js/2048.wasm"), imports);
+            asm = await WebAssembly.instantiateStreaming(fetch("js/2048.wasm"), imports);
             //console.log(asm);
             asm.instance.exports._start();
             return;
