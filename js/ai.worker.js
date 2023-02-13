@@ -3,6 +3,10 @@ let imports = {};
     let asm = await WebAssembly.instantiateStreaming(fetch("2048.wasm"), imports);
     asm.instance.exports._start();
     this.addEventListener("message", async function (e) {
+        if(e.data.depth) {
+            asm.instance.exports.set_depth(e.data.depth);
+            return;
+        }
         if(e.data.return) {
             return;
         }

@@ -51,6 +51,19 @@ function stopai() {
     document.getElementById("ai").innerText = "Start AI";
 }
 
+function depthChange() {
+    let v = document.getElementById("depth").value;
+    console.log(v);
+    if(v < 1) {
+        v = document.getElementById("depth").value = 1;
+    } else if(v > 2147483647) {
+        v = document.getElementById("depth").value = 2147483647;
+    }
+    for (const i in miniWorkers) {
+        miniWorkers[i].postMessage({depth:v});
+    }
+}
+
 window.addEventListener("load", ()=>{
     document.getElementById("ai").onclick = startai;
 });
