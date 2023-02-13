@@ -1,33 +1,52 @@
-let worker = new Worker("js/ai.worker.js");
 let runAI = false;
 window.won = false;
 window.a = "";
-worker.onmessage = function(e) {
-    GM.move([0, 2, 3, 1][e.data]);
-    if((GM.won&&!won)||GM.over) {
-        stopai();
-        if(GM.won) {
-            won = true;
-        }
-        if(GM.over) {
-            won = false;
-            worker.postMessage("reset");
-        }
-    } else if(runAI) {
-        worker.postMessage({cells:GM.grid.cells});
+async function run() {
+    let board = getBoard();
+    let promises = [];
+    for (const i in miniWorkers) {
+        miniWorkers[i].postMessage({board, move:Number(i)})
+        promises[i] = createPromise(miniWorkers[i]);
     }
-};
+    let values = await Promise.all(promises);
+    let bestScore = values[0].score, bestMove = -1;
+    for (const i in miniWorkers) {
+        if(values[i].score>=bestScore) {
+            bestScore = values[i].score;
+            bestMove = values[i].move;
+        }
+    }
+    if(bestMove != -1) {
+        GM.move([0, 2, 3, 1][bestMove]);
+        if((GM.won&&!won)||GM.over) {
+            stopai();
+            if(GM.won) {
+                won = true;
+            }
+            if(GM.over) {
+                won = false;
+            }
+        }
+        if(runAI) {
+            setTimeout(run, 0);
+        }
+    } else {
+        stopai();
+        won = false;
+        for (const i in miniWorkers) {
+            miniWorkers[i].postMessage("reset");
+        }
+    }
+}
 function startai() {
     runAI = true;
-    worker.postMessage({cells:GM.grid.cells});
-    //worker.postMessage("start");
+    run();
     document.getElementById("ai").onclick = stopai;
     document.getElementById("ai").innerText = "Stop AI";
 }
 
 function stopai() {
     runAI = false;
-    //worker.postMessage("stop");
     document.getElementById("ai").onclick = startai;
     document.getElementById("ai").innerText = "Start AI";
 }
@@ -35,3 +54,33 @@ function stopai() {
 window.addEventListener("load", ()=>{
     document.getElementById("ai").onclick = startai;
 });
+
+function getBoard() {
+    let board = [[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0],[0, 0, 0, 0]];
+    for (row of GM.grid.cells) {
+        for(cell of row) {
+            if(cell==null) continue;
+            board[cell.y][cell.x] = Math.log2(cell.value);
+        }
+    }
+    let cboard = BigInt(0), i = 0;
+    for(row of board) {
+        for(c of row) {
+            cboard |= BigInt(c) << BigInt(4*i);
+            i+=1;
+        }
+    }
+    return cboard;
+}
+
+let miniWorkers = [new Worker("js/ai.worker.js"), new Worker("js/ai.worker.js"), new Worker("js/ai.worker.js"), new Worker("js/ai.worker.js")];
+
+function createPromise(worker) {
+    return new Promise(function(resolve) {
+        worker.onmessage = (e)=>{
+            //if(e.data.type) return;
+            resolve(e.data);
+            worker.onmessage = undefined;
+        }
+    })
+}
